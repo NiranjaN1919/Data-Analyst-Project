@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S&amp;P 500 Financial Dashboard</title>
+<style>
+  :root{--bg:#f4f4f1;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--grid:#e6e5e1;--line:#dcdbd5;color-scheme:light}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  header{background:#0d366b;color:#fff;padding:18px 28px}
+  header h1{margin:0;font-size:22px;font-weight:700}
+  header p{margin:4px 0 0;color:#cde2fb;font-size:13px}
+  .wrap{max-width:1280px;margin:0 auto;padding:16px 20px 40px}
+  .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;position:sticky;top:0;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .filters label{display:flex;flex-direction:column;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2);gap:3px}
+  select,button,input{font:inherit;font-size:13px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);min-width:110px}
+  button{cursor:pointer;min-width:0;padding:7px 12px;background:#fff}
+  button:hover{background:#eef4fc}
+  button.primary{background:#1c5cab;color:#fff;border-color:#1c5cab}
+  button.primary:hover{background:#184f95}
+  button.on{background:#1c5cab;color:#fff;border-color:#1c5cab}
+  .presets{display:flex;gap:4px}
+  .picker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin-top:10px}
+  .picker .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2)}
+  .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 6px 3px 10px;background:#fff;font-weight:600;font-size:13px}
+  .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .chip b{cursor:pointer;color:var(--ink2);padding:0 5px;font-weight:400}
+  .quick{border-radius:999px;padding:3px 10px;font-size:12px}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:14px 0}
+  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi .l{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink2)}
+  .kpi .v{font-size:25px;font-weight:700;margin-top:2px}
+  .kpi .s{font-size:12px;color:var(--ink2)}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+  .card.wide{grid-column:1/-1}
+  .card h2{margin:0 0 2px;font-size:15px}
+  .card .sub{margin:0 0 8px;font-size:12px;color:var(--ink2)}
+  .card .tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 6px;font-size:12px;color:var(--ink2)}
+  .card .tools select{min-width:0;padding:4px 7px;font-size:12px}
+  svg{width:100%;height:auto;display:block;overflow:visible}
+  svg text{font-family:inherit;fill:var(--ink2);font-size:11px}
+  .tick{stroke:var(--grid);stroke-width:1}
+  .bar{cursor:pointer}.bar:hover{opacity:.82}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th{background:#1c5cab;color:#fff;text-align:left;padding:6px 9px;font-weight:600}
+  td{padding:6px 9px;border-bottom:1px solid var(--grid)}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:4px 0 0}
+  .legend i{display:inline-block;width:12px;height:3px;margin-right:5px;vertical-align:3px}
+  .warn{background:#fff7e6;border:1px solid #f0d79a;border-radius:8px;padding:8px 12px;font-size:12.5px;color:#5c4400;margin-top:10px}
+  #tip{position:fixed;pointer-events:none;background:#0b0b0b;color:#fff;padding:7px 10px;border-radius:7px;font-size:12px;line-height:1.4;opacity:0;transition:opacity .08s;z-index:20;max-width:300px}
+  .note{font-size:12px;color:var(--ink2);margin-top:14px}
+  .empty{padding:30px;text-align:center;color:var(--ink2)}
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>S&amp;P 500 Financial Dashboard</h1>
+  <p id="range"></p>
+</header>
+<div class="wrap">
+  <div class="filters">
+    <label>From (month end)<select id="fFrom"></select></label>
+    <label>To (month end)<select id="fTo"></select></label>
+    <label>Quick period<span class="presets"><button data-p="12">1Y</button><button data-p="36">3Y</button><button data-p="60">5Y</button><button data-p="999" class="on">All</button></span></label>
+    <label>Chart metric<select id="fMetric"><option value="rebased">Growth of 100 invested</option><option value="price">Adjusted price (USD)</option><option value="ret">Monthly return (%)</option><option value="dd">Drawdown from peak (%)</option></select></label>
+    <label>Universe (rankings)<select id="fUni"><option value="9999">All 503 stocks</option><option value="100">100 most traded</option><option value="50">50 most traded</option><option value="20">20 most traded</option></select></label>
+    <label>Scale<select id="fScale"><option value="log">Log</option><option value="lin">Linear</option></select></label>
+    <button id="reset" class="primary" type="button">Reset</button>
+  </div>
+  <div class="picker" id="picker">
+    <span class="lbl">Stocks</span><span id="chips"></span>
+    <input id="add" list="tickers" placeholder="add ticker, e.g. AMZN" autocomplete="off"><datalist id="tickers"></datalist>
+    <button id="addBtn" type="button">Add</button>
+    <span class="lbl" style="margin-left:8px">Quick add</span><span id="quick"></span>
+    <span class="lbl" id="pickMsg" style="color:#b3401a"></span>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid">
+    <div class="card wide"><h2 id="tTrend"></h2><p class="sub" id="sTrend"></p><div id="cTrend"></div><div class="legend" id="lTrend"></div></div>
+    <div class="card"><h2>Market performance comparison</h2>
+      <div class="tools">Compare on <select id="fCmp"><option value="ret">Period return</option><option value="cagr">Compound annual return</option><option value="vol">Volatility (annualised)</option><option value="dd">Maximum drawdown</option><option value="sharpe">Return per unit of risk (Sharpe)</option></select></div>
+      <p class="sub">Selected stocks against the equal-weight market, for the chosen period</p><div id="cCmp"></div></div>
+    <div class="card"><h2>Monthly return distribution</h2><p class="sub" id="sHist"></p><div id="cHist"></div><div class="legend" id="lHist"></div></div>
+    <div class="card"><h2>Best performers in the period</h2><p class="sub">Top 10 by return over the chosen period, within the selected universe. Click a bar to add it to the comparison.</p><div id="cTop"></div></div>
+    <div class="card"><h2>Weakest performers in the period</h2><p class="sub">Bottom 10 by return. Click a bar to add it to the comparison.</p><div id="cBot"></div></div>
+    <div class="card"><h2 id="tTv"></h2><p class="sub">Shares traded x closing price, summed by month (USD billion). Hollow bar = partial month.</p><div id="cTv"></div></div>
+    <div class="card"><h2>Market returns by month</h2><p class="sub">Equal-weight market index, return in each calendar month (blue = gain, orange = loss)</p><div id="cHeat"></div></div>
+    <div class="card wide"><h2>Forecast (12 months ahead)</h2>
+      <div class="tools">Series <select id="fFc"></select> Show <select id="fFcM"><option value="both">ARIMA and Holt</option><option value="arima">ARIMA only</option><option value="holt">Holt only</option></select></div>
+      <p class="sub" id="sFc"></p>
+      <div style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px"><div><div id="cFc"></div><div class="legend" id="lFc"></div></div><div id="tFc"></div></div>
+      <div class="warn" id="wFc"></div></div>
+  </div>
+  <p class="note" id="note"></p>
+</div>
+<div id="tip"></div>
+<script>
+const D = __DATA__;
+const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const mlabel=s=>MN[+s.slice(5)-1]+" "+s.slice(2,4);
+const mfull=s=>MN[+s.slice(5)-1]+" "+s.slice(0,4);
+const PAL=["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4"], MKT="#3d3c3a", BLUE="#2a78d6", ORG="#eb6834";
+const FIXED={}; D.focus.forEach((t,i)=>FIXED[t]=PAL[i]);
+const $=id=>document.getElementById(id);
+const nf0=new Intl.NumberFormat("en-US",{maximumFractionDigits:0}), nf2=new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pc=(v,d=1,sign=false)=>{ if(v==null||!isFinite(v)) return "-"; const x=v*100, big=Math.abs(x)>=1000; return (sign&&v>0?"+":"")+(big?nf0.format(x):x.toFixed(d))+"%"; };
+const NM=D.months.length, LAST=NM-1, IDX={}; D.tick.forEach((t,i)=>IDX[t]=i);
+const state={from:0,to:LAST,sel:["NVDA","AAPL"],metric:"rebased",uni:9999,scale:"log",cmp:"ret",fc:"Market",fcm:"both"};
+
+// ---------- series helpers
+const seriesOf=t=>t==="Market"?D.mkt:D.px[IDX[t]];
+function colorMap(){ // fixed colours for the focus stocks; others take the unused palette slots in order
+  const m={}, used=new Set(state.sel.filter(t=>FIXED[t]).map(t=>FIXED[t])); const free=PAL.filter(c=>!used.has(c)); let k=0;
+  state.sel.forEach(t=>{ m[t]=FIXED[t]||free[k++]||"#888"; }); m.Market=MKT; return m; }
+function startIdx(s,from){ for(let i=from;i<=state.to;i++) if(s[i]!=null) return i; return -1; }
+function stats(s){
+  const a=startIdx(s,state.from), b=state.to; if(a<0||s[b]==null||b<=a) return null;
+  const r=[]; for(let i=a+1;i<=b;i++) if(s[i]!=null&&s[i-1]!=null) r.push(s[i]/s[i-1]-1);
+  const tot=s[b]/s[a]-1, yrs=(b-a)/12, mean=r.reduce((x,y)=>x+y,0)/r.length, sd=Math.sqrt(r.reduce((x,y)=>x+(y-mean)**2,0)/Math.max(r.length-1,1));
+  let pk=-1,dd=0; for(let i=a;i<=b;i++){ if(s[i]==null) continue; pk=Math.max(pk,s[i]); dd=Math.min(dd,s[i]/pk-1); }
+  const vol=sd*Math.sqrt(12);
+  return {tot,cagr:yrs>=1?Math.pow(1+tot,1/yrs)-1:null,vol,dd,sharpe:vol>0?mean*12/vol:null,n:r.length,start:a,r};
+}
+function setPeriod(k){ state.to=LAST; state.from=Math.max(0,LAST-k); $("fFrom").value=state.from; $("fTo").value=state.to; }
+
+// ---------- controls
+D.months.forEach((m,i)=>{ const o=`<option value="${i}">${mfull(m)}${i===LAST?" (to "+D.asof_label+")":""}</option>`; $("fFrom").insertAdjacentHTML("beforeend",o); $("fTo").insertAdjacentHTML("beforeend",o); });
+$("fTo").value=LAST;
+$("tickers").innerHTML=D.tick.map(t=>`<option value="${t}">`).join("");
+$("quick").innerHTML=D.focus.map(t=>`<button class="quick" data-t="${t}" style="border-color:${FIXED[t]};color:${FIXED[t]}">${t}</button>`).join(" ");
+$("fFc").innerHTML=["Market",...D.focus,"Market volatility"].map(t=>`<option>${t}</option>`).join("");
+function readState(src){
+  state.from=+$("fFrom").value; state.to=+$("fTo").value;
+  if(state.from>=state.to){ if(src==="fFrom"){ state.to=Math.min(LAST,state.from+1); if(state.from>=state.to) state.from=state.to-1; } else state.from=Math.max(0,state.to-1); $("fFrom").value=state.from; $("fTo").value=state.to; }
+  state.metric=$("fMetric").value; state.uni=+$("fUni").value; state.scale=$("fScale").value; state.cmp=$("fCmp").value; state.fc=$("fFc").value; state.fcm=$("fFcM").value;
+  document.querySelectorAll(".presets button").forEach(b=>b.classList.remove("on")); render(); }
+["fFrom","fTo","fMetric","fUni","fScale","fCmp","fFc","fFcM"].forEach(id=>$(id).addEventListener("change",e=>readState(id)));
+document.querySelectorAll(".presets button").forEach(b=>b.onclick=()=>{ setPeriod(+b.dataset.p); readState(); b.classList.add("on"); });
+$("reset").onclick=()=>{ state.sel=["NVDA","AAPL"]; $("fMetric").value="rebased"; $("fUni").value=9999; $("fScale").value="log"; $("fCmp").value="ret"; $("fFc").value="Market"; $("fFcM").value="both"; setPeriod(999); readState(); document.querySelector('.presets [data-p="999"]').classList.add("on"); };
+function addTicker(t){ t=(t||"").trim().toUpperCase(); $("pickMsg").textContent="";
+  if(!(t in IDX)){ $("pickMsg").textContent=t?`"${t}" is not in the data`:""; return; }
+  if(state.sel.includes(t)){ return; }
+  if(state.sel.length>=5){ $("pickMsg").textContent="Up to 5 stocks at a time: remove one first"; return; }
+  state.sel.push(t); render(); }
+function removeTicker(t){ if(state.sel.length<=1){ $("pickMsg").textContent="Keep at least one stock"; return; } state.sel=state.sel.filter(x=>x!==t); $("pickMsg").textContent=""; render(); }
+$("addBtn").onclick=()=>{ addTicker($("add").value); $("add").value=""; };
+$("add").addEventListener("keydown",e=>{ if(e.key==="Enter"){ addTicker($("add").value); $("add").value=""; } });
+$("quick").onclick=e=>{ const t=e.target.closest("button"); if(!t) return; state.sel.includes(t.dataset.t)?removeTicker(t.dataset.t):addTicker(t.dataset.t); };
+$("chips").onclick=e=>{ const b=e.target.closest("b"); if(b) removeTicker(b.dataset.t); };
+
+// ---------- tooltip
+const tip=$("tip");
+document.addEventListener("mousemove",e=>{ const t=e.target.closest("[data-tip]"); if(!t){ tip.style.opacity=0; return; }
+  tip.innerHTML=t.getAttribute("data-tip"); tip.style.opacity=1; const w=tip.offsetWidth; let x=e.clientX+14; if(x+w>innerWidth-8) x=e.clientX-w-14; tip.style.left=x+"px"; tip.style.top=(e.clientY+14)+"px"; });
+const svg=(w,h,inner)=>`<svg viewBox="0 0 ${w} ${h}" role="img">${inner}</svg>`;
+const empty=m=>`<div class="empty">${m||"No data for this selection."}</div>`;
+function niceStep(range,n){ const raw=range/n, p=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/p; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p; }
+function linTicks(lo,hi,n=5){ const st=niceStep(hi-lo||1,n), a=Math.floor(lo/st)*st, out=[]; for(let v=a;v<=hi+st*0.001;v+=st) out.push(+v.toFixed(10)); return out; }
+function logTicks(lo,hi){ const out=[]; for(let e=Math.floor(Math.log10(lo));e<=Math.ceil(Math.log10(hi));e++) [1,2,5].forEach(m=>{ const v=m*Math.pow(10,e); if(v>=lo/1.01&&v<=hi*1.01) out.push(v); }); return out; }
+const short=v=>Math.abs(v)>=1e3?nf0.format(v):Math.abs(v)>=100?v.toFixed(0):Math.abs(v)>=10?v.toFixed(1):v.toFixed(2);
+
+// ---------- KPIs
+function kpis(){
+  const t=state.sel[0], s=stats(seriesOf(t)), m=stats(D.mkt);
+  if(!s){ $("kpis").innerHTML=`<div class="kpi" style="grid-column:1/-1">${empty(t+" has no data in this period")}</div>`; return; }
+  const tvv=D.tv[IDX[t]].slice(s.start+1,state.to+1).filter(v=>v!=null), tv=tvv.length?tvv.reduce((a,b)=>a+b,0)/tvv.length:null;
+  const it=[["Period return",pc(s.tot,1,true),"Market "+pc(m.tot,1,true)],["Compound annual return",pc(s.cagr,1,true),"Market "+pc(m.cagr,1,true)],
+   ["Volatility (annualised)",pc(s.vol,1),"Market "+pc(m.vol,1)],["Worst drawdown",pc(s.dd,1),"Market "+pc(m.dd,1)],
+   ["Return per unit of risk",s.sharpe==null?"-":s.sharpe.toFixed(2),"Market "+(m.sharpe==null?"-":m.sharpe.toFixed(2))],
+   ["Avg monthly traded value",tv==null?"-":"$"+nf0.format(tv/1000)+"B","last price $"+nf2.format(seriesOf(t)[LAST])]];
+  $("kpis").innerHTML=it.map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="s">${k[2]}</div></div>`).join(""); }
+
+// ---------- main trend chart
+function trend(){
+  const cm=colorMap(), names=state.sel, M=state.metric;
+  const label={rebased:"Growth of 100 invested",price:"Adjusted price (USD)",ret:"Monthly return (%)",dd:"Drawdown from peak (%)"}[M];
+  $("tTrend").textContent=label+" - "+names.join(", ")+(M==="price"?"":" and the market");
+  $("sTrend").textContent=`Month-end values, ${mfull(D.months[state.from])} to ${mfull(D.months[state.to])}. Prices include reinvested dividends (adjusted close).`+(M==="rebased"?" Each line starts at 100 on the first month it has data in the period.":"");
+  const lines=[]; const ids=M==="price"?names:[...names,"Market"];
+  ids.forEach(t=>{ const s=seriesOf(t), a=startIdx(s,state.from); if(a<0) return; const pts=[]; let pk=-1;
+    for(let i=state.from;i<=state.to;i++){ const v=s[i]; if(v==null){ pts.push(null); continue; } pk=Math.max(pk,v);
+      pts.push(M==="rebased"?100*v/s[a]:M==="price"?v:M==="ret"?(i>state.from&&s[i-1]!=null?(v/s[i-1]-1)*100:null):(v/pk-1)*100); }
+    lines.push({t,pts,c:cm[t],dash:t==="Market"}); });
+  const vals=lines.flatMap(l=>l.pts.filter(v=>v!=null)); if(!vals.length){ $("cTrend").innerHTML=empty(); $("lTrend").innerHTML=""; return; }
+  const log=state.scale==="log"&&(M==="rebased"||M==="price");
+  let lo=Math.min(...vals), hi=Math.max(...vals); if(!log){ if(M==="rebased"||M==="price") lo=Math.min(lo,0); if(M==="dd") hi=0; }
+  const W=1000,H=330,L=58,Rr=14,T=12,B=30,iw=W-L-Rr,ih=H-T-B,n=state.to-state.from+1;
+  const ticks=log?logTicks(lo,hi):linTicks(lo,hi); const tlo=log?Math.min(lo,ticks[0]):Math.min(lo,ticks[0]), thi=log?Math.max(hi,ticks[ticks.length-1]):Math.max(hi,ticks[ticks.length-1]);
+  const Y=v=>log?T+ih-(Math.log(v)-Math.log(tlo))/(Math.log(thi)-Math.log(tlo))*ih:T+ih-(v-tlo)/(thi-tlo)*ih, X=i=>L+(n>1?i*iw/(n-1):iw/2);
+  let s=""; ticks.forEach(v=>{ s+=`<line class="tick" x1="${L}" x2="${W-Rr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${M==="ret"||M==="dd"?v.toFixed(0)+"%":short(v)}</text>`; });
+  if((M==="ret"||M==="dd")&&tlo<0&&thi>0) s+=`<line x1="${L}" x2="${W-Rr}" y1="${Y(0)}" y2="${Y(0)}" stroke="#0b0b0b" stroke-width="1"/>`;
+  const step=Math.max(1,Math.ceil(n/12)); for(let i=0;i<n;i+=step) s+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${mlabel(D.months[state.from+i])}</text>`;
+  lines.forEach(l=>{ let d="",pen=false; l.pts.forEach((v,i)=>{ if(v==null){ pen=false; return; } d+=(pen?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1); pen=true; });
+    s+=`<path d="${d}" fill="none" stroke="${l.c}" stroke-width="${l.dash?2:2}" ${l.dash?'stroke-dasharray="6 4"':""} stroke-linejoin="round"/>`; });
+  const bw=iw/Math.max(n-1,1);
+  for(let i=0;i<n;i++){ const rows=lines.map(l=>l.pts[i]==null?"":`<span style='color:${l.c==="#3d3c3a"?"#ccc":l.c}'>&#9632;</span> ${l.t}: <b>${M==="ret"||M==="dd"?l.pts[i].toFixed(1)+"%":M==="rebased"?l.pts[i].toFixed(0):"$"+nf2.format(l.pts[i])}</b>`).filter(Boolean).join("<br>");
+    s+=`<rect x="${X(i)-bw/2}" y="${T}" width="${bw}" height="${ih}" fill="transparent" data-tip="<b>${mfull(D.months[state.from+i])}${state.from+i===LAST?" (to "+D.asof_label+")":""}</b><br>${rows}"/>`; }
+  $("cTrend").innerHTML=svg(W,H,s);
+  $("lTrend").innerHTML=lines.map(l=>`<span><i style="background:${l.c};${l.dash?"height:0;border-top:3px dashed "+l.c:""}"></i>${l.t==="Market"?"Market (equal-weight S&P 500)":l.t}</span>`).join("");
+}
+
+// ---------- comparison bars
+function compare(){
+  const cm=colorMap(), items=[...state.sel,"Market"].map(t=>({t,s:stats(seriesOf(t))})).filter(x=>x.s).map(x=>({t:x.t,v:{ret:x.s.tot,cagr:x.s.cagr,vol:x.s.vol,dd:x.s.dd,sharpe:x.s.sharpe}[state.cmp]})).filter(x=>x.v!=null);
+  if(!items.length){ $("cCmp").innerHTML=empty(); return; }
+  const isP=state.cmp!=="sharpe", fmt=v=>isP?pc(v,1,true):v.toFixed(2); const W=560,rowH=36,L=64,Rr=84,H=items.length*rowH+10;
+  const lo=Math.min(0,...items.map(i=>i.v)), hi=Math.max(0,...items.map(i=>i.v)), span=(hi-lo)||1, X=v=>L+(v-lo)/span*(W-L-Rr); let s="";
+  s+=`<line x1="${X(0)}" x2="${X(0)}" y1="0" y2="${H}" stroke="#0b0b0b" stroke-width="1"/>`;
+  items.forEach((it,k)=>{ const y=k*rowH+5, x0=X(Math.min(0,it.v)), w=Math.abs(X(it.v)-X(0));
+    s+=`<text x="${L-8}" y="${y+rowH/2+1}" text-anchor="end" style="fill:#0b0b0b;font-size:12px;font-weight:600">${it.t==="Market"?"Market":it.t}</text>
+        <rect x="${x0}" y="${y+5}" width="${Math.max(w,1)}" height="${rowH-14}" rx="4" fill="${cm[it.t]}" data-tip="<b>${it.t}</b><br>${fmt(it.v)}"/>
+        <text x="${it.v>=0?X(it.v)+8:X(it.v)-8}" y="${y+rowH/2+1}" text-anchor="${it.v>=0?"start":"end"}" style="fill:#0b0b0b;font-size:12px">${fmt(it.v)}</text>`; });
+  $("cCmp").innerHTML=svg(W,H,s); }
+
+// ---------- histogram
+function hist(){
+  const t=state.sel[0], s=stats(seriesOf(t)), m=stats(D.mkt), cm=colorMap();
+  if(!s||!m){ $("cHist").innerHTML=empty(); return; }
+  $("sHist").textContent=`${t} against the market: share of months in each return range, ${mfull(D.months[state.from])} to ${mfull(D.months[state.to])}`;
+  const edges=[-100,-20,-15,-10,-5,0,5,10,15,20,100], lab=["< -20","-20 to -15","-15 to -10","-10 to -5","-5 to 0","0 to 5","5 to 10","10 to 15","15 to 20","> 20"];
+  const bin=r=>{ const v=r*100; for(let i=0;i<10;i++) if(v>=edges[i]&&v<edges[i+1]) return i; return 9; };
+  const cnt=a=>{ const c=Array(10).fill(0); a.forEach(r=>c[bin(r)]++); return c.map(x=>x/a.length); };
+  const a=cnt(s.r), b=cnt(m.r), mx=Math.max(...a,...b,0.05), W=560,H=290,L=44,Rr=8,T=10,B=52,iw=W-L-Rr,ih=H-T-B,bw=iw/10; let g="";
+  linTicks(0,mx*100,4).forEach(v=>{ const y=T+ih-v/100/mx*ih; g+=`<line class="tick" x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}"/><text x="${L-6}" y="${y+4}" text-anchor="end">${v.toFixed(0)}%</text>`; });
+  for(let i=0;i<10;i++){ const x=L+i*bw; const h1=a[i]/mx*ih,h2=b[i]/mx*ih;
+    g+=`<rect x="${x+3}" y="${T+ih-h1}" width="${bw/2-3}" height="${Math.max(h1,0)}" rx="3" fill="${cm[t]}" data-tip="<b>${t}</b> ${lab[i]}%<br>${(a[i]*100).toFixed(0)}% of months"/>
+        <rect x="${x+bw/2}" y="${T+ih-h2}" width="${bw/2-3}" height="${Math.max(h2,0)}" rx="3" fill="${MKT}" data-tip="<b>Market</b> ${lab[i]}%<br>${(b[i]*100).toFixed(0)}% of months"/>
+        <text x="${x+bw/2}" y="${H-30}" text-anchor="middle" style="font-size:10px">${lab[i].replace(" to ","/")}</text>`; }
+  g+=`<text x="${L+iw/2}" y="${H-6}" text-anchor="middle">monthly return (%)</text>`;
+  $("cHist").innerHTML=svg(W,H,g);
+  $("lHist").innerHTML=`<span><i style="background:${cm[t]}"></i>${t} (${s.n} months, best ${pc(Math.max(...s.r),0,true)}, worst ${pc(Math.min(...s.r),0)})</span><span><i style="background:${MKT}"></i>Market</span>`; }
+
+// ---------- performers
+function perf(){
+  const rows=[]; D.tick.forEach((t,i)=>{ if(D.rank[i]>state.uni) return; const s=D.px[i], a=s[state.from], b=s[state.to]; if(a==null||b==null) return; rows.push({t,v:b/a-1}); });
+  const draw=(el,items,pos)=>{ if(!items.length){ $(el).innerHTML=empty("No stock has data for the whole period in this universe."); return; }
+    const mx=Math.max(...items.map(i=>Math.abs(i.v))), W=560,rowH=30,L=62,Rr=84,H=items.length*rowH+6; let s="";
+    items.forEach((it,k)=>{ const y=k*rowH+3, w=(W-L-Rr)*Math.abs(it.v)/mx, on=state.sel.includes(it.t);
+      s+=`<text x="${L-8}" y="${y+rowH/2+1}" text-anchor="end" style="fill:#0b0b0b;font-size:12px;font-weight:${on?700:400}">${it.t}</text>
+          <rect class="bar" x="${L}" y="${y+4}" width="${Math.max(w,1)}" height="${rowH-10}" rx="4" fill="${pos?BLUE:ORG}" ${on?'stroke="#0b0b0b" stroke-width="1.5"':""} data-tip="<b>${it.t}</b><br>${pc(it.v,1,true)} over the period<br>Click to ${on?"remove from":"add to"} the comparison" onclick="toggle('${it.t}')"/>
+          <text x="${L+w+8}" y="${y+rowH/2+1}" style="fill:#0b0b0b;font-size:12px">${pc(it.v,0,true)}</text>`; });
+    $(el).innerHTML=svg(W,H,s); };
+  rows.sort((a,b)=>b.v-a.v); draw("cTop",rows.slice(0,10),true); draw("cBot",rows.slice(-10).reverse(),false); }
+function toggle(t){ state.sel.includes(t)?removeTicker(t):addTicker(t); }
+
+// ---------- traded value
+function traded(){
+  const t=state.sel[0], a=D.tv[IDX[t]], cm=colorMap(); $("tTv").textContent=`Monthly traded value - ${t}`;
+  const pts=[]; for(let i=state.from+1;i<=state.to;i++) if(a[i]!=null) pts.push({i,v:a[i]/1000});
+  if(!pts.length){ $("cTv").innerHTML=empty(); return; }
+  const mx=Math.max(...pts.map(p=>p.v)), tk=linTicks(0,mx,4), top=tk[tk.length-1], W=560,H=270,L=50,Rr=8,T=10,B=28,iw=W-L-Rr,ih=H-T-B,n=state.to-state.from, bw=iw/n; let s="";
+  tk.forEach(v=>{ const y=T+ih-v/top*ih; s+=`<line class="tick" x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}"/><text x="${L-6}" y="${y+4}" text-anchor="end">${short(v)}</text>`; });
+  const step=Math.max(1,Math.ceil(n/8)); pts.forEach(p=>{ const k=p.i-state.from-1, x=L+k*bw, h=p.v/top*ih, part=p.i===LAST;
+    s+=`<rect x="${x+bw*0.1}" y="${T+ih-h}" width="${Math.max(bw*0.8,1)}" height="${h}" fill="${part?"#fcfcfb":cm[t]}" ${part?`stroke="${cm[t]}" stroke-width="1.5"`:""} data-tip="<b>${mfull(D.months[p.i])}${part?" (partial)":""}</b><br>$${p.v.toFixed(1)}B traded"/>`;
+    if(k%step===0) s+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${mlabel(D.months[p.i])}</text>`; });
+  $("cTv").innerHTML=svg(W,H,s); }
+
+// ---------- heatmap of market monthly returns
+function heat(){
+  const yrs=[...new Set(D.months.map(m=>+m.slice(0,4)))], W=620,L=44,T=22,cw=(W-L)/12,rh=26,H=T+yrs.length*rh+4; let s="";
+  MN.forEach((m,j)=>s+=`<text x="${L+j*cw+cw/2}" y="${T-8}" text-anchor="middle">${m}</text>`);
+  const col=v=>{ const t=Math.min(Math.abs(v)/0.10,1); const base=v>=0?[42,120,214]:[235,104,52]; return `rgb(${base.map(c=>Math.round(246+(c-246)*t))})`; };
+  yrs.forEach((y,i)=>{ s+=`<text x="${L-8}" y="${T+i*rh+rh/2+4}" text-anchor="end" style="fill:#0b0b0b">${y}</text>`;
+    for(let j=0;j<12;j++){ const k=D.months.indexOf(`${y}-${String(j+1).padStart(2,"0")}`); if(k<1) continue; const v=D.mkt[k]/D.mkt[k-1]-1, inr=k>state.from&&k<=state.to;
+      s+=`<rect x="${L+j*cw+1}" y="${T+i*rh+1}" width="${cw-2}" height="${rh-2}" rx="3" fill="${col(v)}" opacity="${inr?1:0.28}" data-tip="<b>${mfull(D.months[k])}${k===LAST?" (partial)":""}</b><br>Market ${pc(v,1,true)}"/>
+          <text x="${L+j*cw+cw/2}" y="${T+i*rh+rh/2+4}" text-anchor="middle" style="fill:${Math.abs(v)>0.06?"#fff":"#0b0b0b"};font-size:10px;pointer-events:none;opacity:${inr?1:0.4}">${(v*100).toFixed(0)}</text>`; } });
+  $("cHeat").innerHTML=svg(W,H,s); }
+
+// ---------- forecast
+function forecast(){
+  const name=state.fc, f=D.fc[name], isV=name==="Market volatility", hist=isV?D.mvol:seriesOf(name), cm=colorMap(), col=isV?BLUE:(name==="Market"?BLUE:(FIXED[name]||BLUE));
+  const nh=36, h0=LAST-1-nh+1, hs=[]; for(let i=h0;i<=LAST-1;i++) hs.push(hist[i]*(isV?100:1)); // history up to last full month (Oct 2026)
+  const sc=isV?100:1, fl=f.arima.map(v=>v*sc), A=[f.lo95,f.hi95,f.lo80,f.hi80].map(a=>a.map(v=>v*sc)), hm=f.holt?f.holt.map(v=>v*sc):null;
+  $("sFc").textContent=isV?"Monthly market volatility (annualised standard deviation of daily returns). Forecast: ARIMA fitted on all months to Oct 2026.":`${name} month-end ${name==="Market"?"index level":"adjusted close (USD)"}. Fitted on all months to Oct 2026; shaded bands are 80% and 95% prediction ranges.`;
+  const all=[...hs,...A[0],...A[1],...(hm||[])], lo=Math.min(...all)*0.95, hi=Math.max(...all)*1.03, log=false;
+  const W=700,H=330,L=54,Rr=14,T=10,B=30,iw=W-L-Rr,ih=H-T-B,n=nh+12, X=i=>L+i*iw/(n-1), Y=v=>T+ih-(v-lo)/(hi-lo)*ih; let s="";
+  linTicks(lo,hi,5).forEach(v=>{ if(v<lo*0.9) return; s+=`<line class="tick" x1="${L}" x2="${W-Rr}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${isV?v.toFixed(0)+"%":short(v)}</text>`; });
+  const lab=i=>i<nh?D.months[h0+i]:D.fmonths[i-nh]; for(let i=0;i<n;i+=Math.ceil(n/9)) s+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${mlabel(lab(i))}</text>`;
+  const band=(lo_,hi_,op)=>{ let d=`M${X(nh)} ${Y(hs[nh-1])}`; hi_.forEach((v,k)=>d+=`L${X(nh+k+1)} ${Y(v)}`); for(let k=lo_.length-1;k>=0;k--) d+=`L${X(nh+k+1)} ${Y(lo_[k])}`; return `<path d="${d}Z" fill="${col}" opacity="${op}"/>`; };
+  s+=band(A[0],A[1],0.14)+band(A[2],A[3],0.26);
+  s+=`<path d="${hs.map((v,i)=>(i?"L":"M")+X(i)+" "+Y(v)).join("")}" fill="none" stroke="${MKT}" stroke-width="2"/>`;
+  if(state.fcm!=="holt") s+=`<path d="M${X(nh-1)} ${Y(hs[nh-1])}${fl.map((v,k)=>"L"+X(nh+k)+" "+Y(v)).join("")}" fill="none" stroke="${col}" stroke-width="2.4"/>`;
+  if(hm&&state.fcm!=="arima") s+=`<path d="M${X(nh-1)} ${Y(hs[nh-1])}${hm.map((v,k)=>"L"+X(nh+k)+" "+Y(v)).join("")}" fill="none" stroke="${ORG}" stroke-width="2" stroke-dasharray="6 4"/>`;
+  s+=`<line x1="${X(nh-0.5)}" x2="${X(nh-0.5)}" y1="${T}" y2="${T+ih}" stroke="#aaa" stroke-dasharray="3 3"/>`;
+  for(let i=0;i<nh;i++) s+=`<circle cx="${X(i)}" cy="${Y(hs[i])}" r="9" fill="transparent" data-tip="<b>${mfull(D.months[h0+i])}</b><br>${isV?hs[i].toFixed(1)+"%":"$"+nf2.format(hs[i])}"/>`;
+  for(let k=0;k<12;k++) s+=`<circle cx="${X(nh+k)}" cy="${Y(fl[k])}" r="10" fill="transparent" data-tip="<b>${mfull(D.fmonths[k])}</b><br>ARIMA: ${isV?fl[k].toFixed(1)+"%":nf2.format(fl[k])}<br>80% range: ${isV?A[2][k].toFixed(1)+"% to "+A[3][k].toFixed(1)+"%":nf2.format(A[2][k])+" to "+nf2.format(A[3][k])}${hm?"<br>Holt: "+nf2.format(hm[k]):""}"/>`;
+  $("cFc").innerHTML=svg(W,H,s);
+  $("lFc").innerHTML=`<span><i style="background:${MKT}"></i>History</span>`+(state.fcm!=="holt"?`<span><i style="background:${col}"></i>ARIMA forecast + 80%/95% ranges</span>`:"")+(hm&&state.fcm!=="arima"?`<span><i style="height:0;border-top:3px dashed ${ORG}"></i>Holt (damped)</span>`:"");
+  const last=hist[LAST-1]*sc, fm=v=>isV?v.toFixed(1)+"%":nf2.format(v), chg=(v,b)=>isV?"":" ("+pc(v/b-1,0,true)+")";
+  $("tFc").innerHTML=`<table><thead><tr><th>Horizon</th><th class="n">ARIMA</th><th class="n">80% range</th>${hm?'<th class="n">Holt</th>':""}</tr></thead><tbody>`+[0,2,5,11].map(k=>`<tr><td>${k+1} month${k?"s":""}</td><td class="n">${fm(fl[k])}${chg(fl[k],last)}</td><td class="n">${fm(A[2][k])} to ${fm(A[3][k])}</td>${hm?`<td class="n">${fm(hm[k])}${chg(hm[k],last)}</td>`:""}</tr>`).join("")+`</tbody></table><p class="sub" style="margin-top:8px">Last full month (${mfull(D.months[LAST-1])}): ${fm(last)}. ARIMA order ${f.order}.</p>`;
+  const b=D.bt; $("wFc").innerHTML=isV
+    ? `<b>This one is forecastable.</b> In the back-test (${b.n} origins) the ARIMA volatility forecast had ${((1-b.vol12)*100).toFixed(0)}% lower error than "no change" 12 months ahead, because volatility drifts back toward its long-run level.`
+    : `<b>Read the range, not the line.</b> Back-test over ${b.n} past forecast dates: no model beat "no change" at 1-6 months by a margin larger than chance; at 12 months the trend-following ARIMA/drift error was ${((1-b.price12)*100).toFixed(0)}% lower, but this sample is today's biggest survivors, which flatters trend forecasts. The central line repeats the past average growth; the shaded range is the honest part.`; }
+
+function render(){
+  const cm=colorMap();
+  $("chips").innerHTML=state.sel.map(t=>`<span class="chip"><i style="background:${cm[t]}"></i>${t}<b data-t="${t}" title="remove">x</b></span>`).join(" ");
+  $("range").textContent=`${D.n_tick} stocks, ${mfull(D.months[0])} to ${D.asof_label}. Showing ${mfull(D.months[state.from])} to ${mfull(D.months[state.to])} (${state.to-state.from} months). Adjusted close, monthly data.`;
+  kpis(); trend(); compare(); hist(); perf(); traded(); heat(); forecast(); }
+$("note").innerHTML=`Source: sp500-stock-prices.csv.gz, cleaned (see report section 3). Returns use adjusted close (dividends reinvested). "Market" = equal-weight average of all stocks with data each day (rebalanced daily); it covers today's S&amp;P 500 members only, which flatters past performance (survivorship bias). Statistics here are computed from month-end values; the report uses daily data, so volatility and drawdowns can differ slightly. Not investment advice.`;
+render();
+</script>
+</body>
+</html>

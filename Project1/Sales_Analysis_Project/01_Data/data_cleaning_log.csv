@@ -1,0 +1,14 @@
+Step,Finding,Action
+Load raw file,"34,500 rows x 17 columns",None
+Fully empty rows,"32,503 rows contain no data at all (padding after row 1,997)","Removed -> 1,997 real orders remain"
+Missing values (real rows),0 missing cells across all 17 columns,Nothing to impute or drop
+Data types,All numeric columns parsed; text columns trimmed of stray spaces,"Quantity, delivery days and age cast to integer"
+Date format,order_date stored as text dd-mm-yyyy; 0 unparseable values,Converted to a true date (yyyy-mm-dd) so Power BI treats it as a Date
+Duplicates,"0 fully duplicated rows, 0 repeated order_id",Nothing removed
+Consistency: total_amount,0 orders where total_amount != price x quantity x (1 - discount),Totals reconcile exactly
+Consistency: ranges,"0 rows with non-positive price/quantity, negative shipping or invalid discount",None found
+Consistency: product_id,"39 product IDs appear in more than one order, always at different prices; 28 of them are listed under different categories (product_id is not a reliable unique key)",Kept all rows; products are identified by product_id + category in rankings
+Consistency: labels,"Category (7), region (5), payment method (6), returned (2), gender (3) - no spelling or case variants",None needed
+Negative profit,363 orders (18.2%) have profit_margin < 0 (loss-making after discount/shipping),"Kept - genuine business losses, analysed in the report"
+Outliers,"20 orders above the 99th percentile (> 1,667)","Kept - high-ticket orders are real, flagged with high_value_order"
+Derived columns,"year, quarter, year_quarter, year_month, month_name, gross_amount, discount_amount, is_returned, profit_pct, age_group, high_value_order",Added for aggregation and Power BI slicers

@@ -1,0 +1,5 @@
+segment,customers,recency_days,frequency,monetary,avg_order_value,avg_discount,return_rate,avg_profit,avg_age,pct_female,total_revenue,customer_share,revenue_share,profit_share,top_region,top_category,top_payment
+Premium spenders,639,357.9171,1.0,356.1593,356.1593,0.025,0.0579,57.8939,43.507,0.4914,227585.81,0.3625,0.675,0.6674,North,Electronics,Credit Card
+Repeat buyers,211,226.9953,2.0995,350.9558,166.325,0.0509,0.0371,61.0878,44.0,0.5355,74051.68,0.1197,0.2196,0.2325,North,Electronics,Credit Card
+Discount seekers,297,359.8788,1.0,69.9582,69.9582,0.1657,0.0606,12.4492,44.9259,0.4882,20777.6,0.1685,0.0616,0.0667,South,Fashion,Credit Card
+Budget shoppers,616,365.6006,1.0032,23.9456,23.9275,0.0197,0.0292,3.0012,43.1088,0.4675,14750.49,0.3494,0.0437,0.0334,South,Grocery,Credit Card

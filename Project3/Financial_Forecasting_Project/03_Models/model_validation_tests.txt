@@ -1,0 +1,7 @@
+PASS  ARMA(1,1) recovery: true mu/phi/theta = 0.5/0.6/0.3, estimated 0.47/0.60/0.30
+PASS  AR forecast decays to mean: h=60 forecast 0.47 vs sample mean 0.47
+PASS  ARIMA(0,1,0) 95% interval coverage: 0.945 (target 0.95)
+PASS  auto_arima on random walk returns a small model: selected (p,d,q) = (0, 1, 0)
+PASS  Holt-Winters beats naive on seasonal trend: better in 40/40 simulations
+PASS  Holt-Winters 95% interval coverage: 0.958
+PASS  Holt on a line: h=6 forecast 134.90 vs 135

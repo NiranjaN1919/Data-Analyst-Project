@@ -1,0 +1,14 @@
+Step,Finding,Action
+Load raw file,"1,446,136 rows x 8 columns (503 tickers, 2,986 trading days, 2015-01-02 to 2026-11-16)",None
+Variable types,"date read as text; prices decimal, volume integer",date converted to datetime
+Missing values,0 missing cells in any column,Nothing to impute
+Duplicates,"0 duplicated (date, ticker) rows",None removed
+Non-positive prices,0 zero or negative prices,None to fix
+Price consistency (OHLC),0 rows with high < low; 0 with close outside the day's range; 1 with open outside the range,"Open clipped into [low, high]"
+Adjusted close,adj_close/close ranges 0.12-1.00 (never above 1) and moves only at dividend dates,adj_close used for returns and indices (dividends reinvested); close and volume used for traded value
+Zero volume (pre-listing),"5,062 rows on 3 tickers have zero volume and stale prices up to the US listing date (AMCR to 2019-06-10, FERG to 2021-03-05, SW to 2024-07-05)","Removed: these prices come from before the stock traded in the US, so returns and volume would be wrong"
+Zero volume (other),66 remaining zero-volume rows on 19 tickers,Volume set to missing; prices kept
+Gaps inside a history,0 missing trading days inside any ticker's history; every ticker ends on 2026-11-16,None to fill
+Short histories,3 tickers have under one year of data and 48 have less than the full period (new listings),Kept in the data; excluded from performance rankings when under 2 years
+Extreme daily moves,31 daily moves above 40% and 1 one-day spike(s) that reverse the next day,Large moves that persist are kept (real events such as March 2020 or earnings); a spike that reverses next day is treated as a data error and repaired
+Variable transformation,"prices are levels; analysis needs returns, an index, monthly series","Built daily returns, equal-weight market index, month-end prices, monthly returns and traded value"

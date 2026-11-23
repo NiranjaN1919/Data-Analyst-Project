@@ -1,0 +1,5 @@
+model,rmse,mae,r2
+Baseline (training mean),97.5116,21.6165,-0.0016
+Linear Regression,98.7034,25.1781,-0.0263
+Decision Tree,99.9688,31.1612,-0.0528
+Random Forest,99.7042,32.7403,-0.0472

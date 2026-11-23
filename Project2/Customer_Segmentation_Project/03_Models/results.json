@@ -1,0 +1,445 @@
+{
+ "n_orders": 1997,
+ "n_customers": 1763,
+ "date_min": "2023-09-12",
+ "date_max": "2025-09-11",
+ "ref_date": "2025-09-12",
+ "idcheck": {
+  "id_span": 7995,
+  "unique_observed": 1763,
+  "unique_random_mean": 1766.502,
+  "unique_random_sd": 13.053964761711287,
+  "repeat_customers": 213,
+  "mismatch": {
+   "Gender": {
+    "observed": 0.5446009389671361,
+    "random": 0.5375745139993415
+   },
+   "Region": {
+    "observed": 0.7981220657276995,
+    "random": 0.7961626967241047
+   },
+   "Age": {
+    "observed": 0.9953051643192489,
+    "random": 0.9802355009730419
+   }
+  }
+ },
+ "k_table": [
+  {
+   "k": 2,
+   "inertia": 6358.2123,
+   "silhouette": 0.265,
+   "davies_bouldin": 1.4839,
+   "calinski_harabasz": 680.4433
+  },
+  {
+   "k": 3,
+   "inertia": 4871.2408,
+   "silhouette": 0.3071,
+   "davies_bouldin": 1.1988,
+   "calinski_harabasz": 712.4485
+  },
+  {
+   "k": 4,
+   "inertia": 3972.9303,
+   "silhouette": 0.3096,
+   "davies_bouldin": 1.1411,
+   "calinski_harabasz": 714.6027
+  },
+  {
+   "k": 5,
+   "inertia": 3392.5443,
+   "silhouette": 0.2959,
+   "davies_bouldin": 1.13,
+   "calinski_harabasz": 702.4726
+  },
+  {
+   "k": 6,
+   "inertia": 2962.5448,
+   "silhouette": 0.2852,
+   "davies_bouldin": 1.097,
+   "calinski_harabasz": 694.1845
+  },
+  {
+   "k": 7,
+   "inertia": 2703.1828,
+   "silhouette": 0.2803,
+   "davies_bouldin": 1.0406,
+   "calinski_harabasz": 661.7108
+  },
+  {
+   "k": 8,
+   "inertia": 2473.7902,
+   "silhouette": 0.2839,
+   "davies_bouldin": 1.0242,
+   "calinski_harabasz": 642.6732
+  }
+ ],
+ "k_chosen": 4,
+ "cluster_check": {
+  "kmeans_silhouette": 0.3096006251192688,
+  "bootstrap_ari_mean": 0.9205935528030526,
+  "bootstrap_ari_min": 0.8441972447475083,
+  "ward_silhouette": 0.2744456050642699,
+  "ward_ari_vs_kmeans": 0.48175945524654484,
+  "gmm_silhouette": 0.11547622661839613,
+  "gmm_ari_vs_kmeans": 0.35088407016934337
+ },
+ "segments": [
+  {
+   "customers": 639,
+   "recency_days": 357.9171,
+   "frequency": 1.0,
+   "monetary": 356.1593,
+   "avg_order_value": 356.1593,
+   "avg_discount": 0.025,
+   "return_rate": 0.0579,
+   "avg_profit": 57.8939,
+   "avg_age": 43.507,
+   "pct_female": 0.4914,
+   "total_revenue": 227585.81,
+   "segment": "Premium spenders",
+   "customer_share": 0.3625,
+   "revenue_share": 0.675,
+   "profit_share": 0.6674,
+   "top_region": "North",
+   "top_category": "Electronics",
+   "top_payment": "Credit Card"
+  },
+  {
+   "customers": 211,
+   "recency_days": 226.9953,
+   "frequency": 2.0995,
+   "monetary": 350.9558,
+   "avg_order_value": 166.325,
+   "avg_discount": 0.0509,
+   "return_rate": 0.0371,
+   "avg_profit": 61.0878,
+   "avg_age": 44.0,
+   "pct_female": 0.5355,
+   "total_revenue": 74051.68,
+   "segment": "Repeat buyers",
+   "customer_share": 0.1197,
+   "revenue_share": 0.2196,
+   "profit_share": 0.2325,
+   "top_region": "North",
+   "top_category": "Electronics",
+   "top_payment": "Credit Card"
+  },
+  {
+   "customers": 297,
+   "recency_days": 359.8788,
+   "frequency": 1.0,
+   "monetary": 69.9582,
+   "avg_order_value": 69.9582,
+   "avg_discount": 0.1657,
+   "return_rate": 0.0606,
+   "avg_profit": 12.4492,
+   "avg_age": 44.9259,
+   "pct_female": 0.4882,
+   "total_revenue": 20777.6,
+   "segment": "Discount seekers",
+   "customer_share": 0.1685,
+   "revenue_share": 0.0616,
+   "profit_share": 0.0667,
+   "top_region": "South",
+   "top_category": "Fashion",
+   "top_payment": "Credit Card"
+  },
+  {
+   "customers": 616,
+   "recency_days": 365.6006,
+   "frequency": 1.0032,
+   "monetary": 23.9456,
+   "avg_order_value": 23.9275,
+   "avg_discount": 0.0197,
+   "return_rate": 0.0292,
+   "avg_profit": 3.0012,
+   "avg_age": 43.1088,
+   "pct_female": 0.4675,
+   "total_revenue": 14750.49,
+   "segment": "Budget shoppers",
+   "customer_share": 0.3494,
+   "revenue_share": 0.0437,
+   "profit_share": 0.0334,
+   "top_region": "South",
+   "top_category": "Grocery",
+   "top_payment": "Credit Card"
+  }
+ ],
+ "segment_region_pct": {
+  "Premium spenders": {
+   "Central": 15.3,
+   "East": 19.2,
+   "North": 22.4,
+   "South": 20.7,
+   "West": 22.4
+  },
+  "Repeat buyers": {
+   "Central": 16.1,
+   "East": 15.6,
+   "North": 25.6,
+   "South": 24.6,
+   "West": 18.0
+  },
+  "Discount seekers": {
+   "Central": 10.1,
+   "East": 22.6,
+   "North": 19.9,
+   "South": 25.3,
+   "West": 22.2
+  },
+  "Budget shoppers": {
+   "Central": 16.7,
+   "East": 19.0,
+   "North": 21.4,
+   "South": 22.7,
+   "West": 20.1
+  }
+ },
+ "segment_gender_pct": {
+  "Premium spenders": {
+   "Female": 49.1,
+   "Male": 47.7,
+   "Other": 3.1
+  },
+  "Repeat buyers": {
+   "Female": 53.6,
+   "Male": 42.7,
+   "Other": 3.8
+  },
+  "Discount seekers": {
+   "Female": 48.8,
+   "Male": 46.8,
+   "Other": 4.4
+  },
+  "Budget shoppers": {
+   "Female": 46.8,
+   "Male": 49.0,
+   "Other": 4.2
+  }
+ },
+ "segment_payment_pct": {
+  "Premium spenders": {
+   "COD": 11.7,
+   "Credit Card": 31.9,
+   "Debit Card": 26.0,
+   "PayPal": 11.7,
+   "UPI": 11.0,
+   "Wallet": 7.7
+  },
+  "Repeat buyers": {
+   "COD": 23.2,
+   "Credit Card": 53.1,
+   "Debit Card": 17.1,
+   "PayPal": 3.8,
+   "UPI": 2.8,
+   "Wallet": 0.0
+  },
+  "Discount seekers": {
+   "COD": 10.4,
+   "Credit Card": 37.4,
+   "Debit Card": 22.6,
+   "PayPal": 8.4,
+   "UPI": 15.2,
+   "Wallet": 6.1
+  },
+  "Budget shoppers": {
+   "COD": 14.0,
+   "Credit Card": 33.3,
+   "Debit Card": 24.5,
+   "PayPal": 9.6,
+   "UPI": 13.5,
+   "Wallet": 5.2
+  }
+ },
+ "segment_category_pct": {
+  "Premium spenders": {
+   "Beauty": 4.1,
+   "Electronics": 38.3,
+   "Fashion": 13.8,
+   "Grocery": 1.1,
+   "Home": 25.4,
+   "Sports": 14.9,
+   "Toys": 2.5
+  },
+  "Repeat buyers": {
+   "Beauty": 5.7,
+   "Electronics": 27.6,
+   "Fashion": 20.1,
+   "Grocery": 5.3,
+   "Home": 20.2,
+   "Sports": 10.3,
+   "Toys": 10.8
+  },
+  "Discount seekers": {
+   "Beauty": 15.2,
+   "Electronics": 10.1,
+   "Fashion": 21.9,
+   "Grocery": 16.5,
+   "Home": 14.5,
+   "Sports": 8.8,
+   "Toys": 13.1
+  },
+  "Budget shoppers": {
+   "Beauty": 18.3,
+   "Electronics": 1.8,
+   "Fashion": 18.9,
+   "Grocery": 23.1,
+   "Home": 8.1,
+   "Sports": 8.3,
+   "Toys": 21.5
+  }
+ },
+ "model_data": {
+  "window_days": 180,
+  "train_rows": 2314,
+  "train_customers": 912,
+  "train_positive_rate": 0.06050129645635264,
+  "train_positives": 140,
+  "test_rows": 1351,
+  "test_positives": 88,
+  "test_positive_rate": 0.06513693560325684,
+  "test_snapshot": "2025-03-12",
+  "train_snapshots": [
+   "2023-12-12",
+   "2024-03-12",
+   "2024-06-12",
+   "2024-09-12"
+  ],
+  "test_future_spend_mean": 13.357735011102886,
+  "test_future_spend_sd": 97.46788897724645
+ },
+ "clf_metrics": [
+  {
+   "model": "Baseline (always 'no')",
+   "accuracy": 0.9349,
+   "balanced_accuracy": 0.5,
+   "precision": 0.0,
+   "recall": 0.0,
+   "f1": 0.0,
+   "roc_auc": 0.5,
+   "pr_auc": 0.0651,
+   "auc_ci_low": 0.5,
+   "auc_ci_high": 0.5
+  },
+  {
+   "model": "Logistic Regression",
+   "accuracy": 0.507,
+   "balanced_accuracy": 0.4932,
+   "precision": 0.0634,
+   "recall": 0.4773,
+   "f1": 0.112,
+   "roc_auc": 0.4838,
+   "pr_auc": 0.0638,
+   "auc_ci_low": 0.419,
+   "auc_ci_high": 0.5433
+  },
+  {
+   "model": "Decision Tree",
+   "accuracy": 0.5899,
+   "balanced_accuracy": 0.5111,
+   "precision": 0.0685,
+   "recall": 0.4205,
+   "f1": 0.1178,
+   "roc_auc": 0.5174,
+   "pr_auc": 0.0677,
+   "auc_ci_low": 0.4567,
+   "auc_ci_high": 0.5813
+  },
+  {
+   "model": "Random Forest",
+   "accuracy": 0.8801,
+   "balanced_accuracy": 0.5024,
+   "precision": 0.0698,
+   "recall": 0.0682,
+   "f1": 0.069,
+   "roc_auc": 0.5247,
+   "pr_auc": 0.0692,
+   "auc_ci_low": 0.471,
+   "auc_ci_high": 0.5819
+  }
+ ],
+ "best_clf": "Random Forest",
+ "reg_metrics": [
+  {
+   "model": "Baseline (training mean)",
+   "rmse": 97.5116,
+   "mae": 21.6165,
+   "r2": -0.0016
+  },
+  {
+   "model": "Linear Regression",
+   "rmse": 98.7034,
+   "mae": 25.1781,
+   "r2": -0.0263
+  },
+  {
+   "model": "Decision Tree",
+   "rmse": 99.9688,
+   "mae": 31.1612,
+   "r2": -0.0528
+  },
+  {
+   "model": "Random Forest",
+   "rmse": 99.7042,
+   "mae": 32.7403,
+   "r2": -0.0472
+  }
+ ],
+ "val_metrics": [
+  {
+   "model": "Baseline (training mean)",
+   "rmse": 400.0966,
+   "mae": 189.8812,
+   "r2": -0.0039
+  },
+  {
+   "model": "Linear Regression",
+   "rmse": 345.8402,
+   "mae": 141.2448,
+   "r2": 0.2499
+  },
+  {
+   "model": "Decision Tree",
+   "rmse": 354.5111,
+   "mae": 141.0042,
+   "r2": 0.2118
+  },
+  {
+   "model": "Random Forest",
+   "rmse": 347.9192,
+   "mae": 138.968,
+   "r2": 0.2409
+  }
+ ],
+ "val_data": {
+  "train_orders": 1480,
+  "test_orders": 517,
+  "test_mean": 187.31466150870403,
+  "test_sd": 399.7056526745305
+ },
+ "importance_value": {
+  "category": 94.4778,
+  "payment_method": 3.4327,
+  "region": 3.2805,
+  "customer_gender": -1.8608,
+  "customer_age": 1.2548
+ },
+ "importance_clf": {
+  "n_orders": -0.0002,
+  "recency_days": 0.0009,
+  "tenure_days": 0.0003,
+  "log_spend": 0.0182,
+  "log_aov": 0.0146,
+  "avg_discount": -0.0066,
+  "return_rate": 0.0006,
+  "avg_delivery": 0.0134,
+  "n_categories": -0.0002,
+  "age": -0.0113,
+  "gender": 0.0029,
+  "region": -0.008,
+  "fav_category": 0.0188
+ }
+}

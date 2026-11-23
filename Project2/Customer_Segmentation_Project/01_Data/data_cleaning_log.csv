@@ -1,0 +1,10 @@
+Step,Finding,Action
+Load raw file,"34,500 rows x 17 columns",None
+Fully empty rows,"32,503 rows contain no data at all","Removed -> 1,997 orders remain"
+Missing values,0 missing cells in the remaining rows,Nothing to impute
+Variable types,order_date text (dd-mm-yyyy) -> date; numbers parsed; text trimmed,Converted
+Duplicates,0 duplicated rows / repeated order_id,Nothing removed
+Consistency,0 orders where total != price x qty x (1 - discount); 0 invalid price/quantity/shipping values,Totals reconcile; nothing to fix
+customer_id reliability,"213 IDs appear in more than one order, but the 'same' customer changes gender in 54%, region in 80% and age in 100% of cases - almost exactly what random ID collisions would give (54% / 80% / 98%); unique IDs 1,763 vs 1,767 +/- 13 expected from random draws over 7,995 possible IDs",Kept customer_id as the customer key (as the brief requires); demographics taken from the latest order; limitation reported
+Feature engineering,"recency, frequency, monetary (RFM), average order value, lifetime value, net value after returns, average discount, return rate, delivery/shipping, categories bought, favourite category and payment, category spend shares, age/gender/region of latest order","30 columns for 1,763 customers"
+Variable transformation,monetary and order value are right-skewed (skewness 5.7),log1p transform (skewness 0.1); features standardised (z-score) before clustering; categories one-hot encoded for models
